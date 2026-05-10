@@ -9,6 +9,10 @@ const STYLES = `
 .qr-overlay { position: absolute; width: 70vmin; height: 70vmin; max-width: 70vw; max-height: 70vh; pointer-events: none; }
 .qr-overlay__rect { fill: none; stroke: #d33; stroke-width: 1; stroke-dasharray: 3 2; }
 .qr-overlay--decoded .qr-overlay__rect { stroke: #2c8; stroke-dasharray: none; }
+.qr-overlay__finder-outer { fill: none; stroke: #d33; stroke-width: 1; opacity: 0.75; }
+.qr-overlay__finder-inner { fill: #d33; stroke: none; opacity: 0.75; }
+.qr-overlay--decoded .qr-overlay__finder-outer { stroke: #2c8; }
+.qr-overlay--decoded .qr-overlay__finder-inner { fill: #2c8; }
 .qr-status { position: absolute; bottom: 96px; left: 0; right: 0; text-align: center; font-size: 16px; color: #eee; padding: 8px 16px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
 .qr-button { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); padding: 14px 32px; min-width: 160px; min-height: 48px; font-size: 16px; border: 1px solid #888; border-radius: 24px; background: rgba(0,0,0,0.6); color: #fff; cursor: pointer; }
 .qr-error { position: absolute; left: 24px; right: 24px; top: 50%; transform: translateY(-50%); text-align: center; font-size: 18px; color: #eee; }
@@ -53,6 +57,22 @@ export function renderScan(rootEl: HTMLElement): ScanHandles {
   rect.setAttribute('rx', '4');
   rect.setAttribute('class', 'qr-overlay__rect');
   overlay.appendChild(rect);
+  for (const [fx, fy] of [[6, 6], [80, 6], [6, 80]] as const) {
+    const outer = document.createElementNS(SVG_NS, 'rect');
+    outer.setAttribute('x', String(fx));
+    outer.setAttribute('y', String(fy));
+    outer.setAttribute('width', '14');
+    outer.setAttribute('height', '14');
+    outer.setAttribute('class', 'qr-overlay__finder-outer');
+    overlay.appendChild(outer);
+    const inner = document.createElementNS(SVG_NS, 'rect');
+    inner.setAttribute('x', String(fx + 4));
+    inner.setAttribute('y', String(fy + 4));
+    inner.setAttribute('width', '6');
+    inner.setAttribute('height', '6');
+    inner.setAttribute('class', 'qr-overlay__finder-inner');
+    overlay.appendChild(inner);
+  }
   rootEl.appendChild(overlay);
 
   const statusEl = document.createElement('div');
