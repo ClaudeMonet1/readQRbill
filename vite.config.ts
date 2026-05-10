@@ -1,7 +1,11 @@
 import { defineConfig } from 'vitest/config';
 import basicSsl from '@vitejs/plugin-basic-ssl';
 
-export default defineConfig({
+// On GitHub Pages the app is served at https://<user>.github.io/readQRbill/, so
+// production builds need to prefix asset URLs with the repo name. Dev/preview
+// stays at root.
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? '/readQRbill/' : '/',
   plugins: [basicSsl()],
   server: {
     https: {},
@@ -23,4 +27,4 @@ export default defineConfig({
     include: ['tests/**/*.test.ts'],
     globals: false,
   },
-});
+}));
