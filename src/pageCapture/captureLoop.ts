@@ -3,12 +3,16 @@ import { frameDifference, STABILITY_THRESHOLD } from './stability';
 import { laplacianVariance, SHARPNESS_THRESHOLD } from './sharpness';
 import { transition, type Event, type State } from './stateMachine';
 import { captureFullFrame } from './snapshot';
+import type { CropRect } from './cropRegion';
 
 export interface CaptureLoopOpts {
   video: HTMLVideoElement;
   onState: (state: State) => void;
   onCapture: (blob: Blob) => void;
   onError?: (err: Error) => void;
+  // Called at snapshot time to compute the crop region (in camera pixel coords).
+  // Return null to capture the full frame.
+  getCropRect?: () => CropRect | null;
 }
 
 const FRAME_INTERVAL_MS = 66; // ~15 FPS
@@ -35,7 +39,8 @@ export function runCaptureLoop(opts: CaptureLoopOpts): CaptureLoopHandle {
       opts.onState(state);
       if (state.kind === 'captured' && !captureInFlight) {
         captureInFlight = true;
-        captureFullFrame(opts.video)
+        const crop = opts.getCropRect ? opts.getCropRect() : null;
+        captureFullFrame(opts.video, crop)
           .then((blob) => opts.onCapture(blob))
           .catch((err: unknown) => opts.onError?.(err instanceof Error ? err : new Error(String(err))));
       }

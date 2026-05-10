@@ -2,6 +2,7 @@ import { startCamera, type CameraHandle } from './camera';
 import { runCaptureLoop, type CaptureLoopHandle } from './captureLoop';
 import { render, attachVideo, showError, showPreview, type RenderHandles } from './ui/render';
 import { flash, vibrate } from './ui/feedback';
+import { computeCropRect, readVideoLayout, readOverlayRect } from './cropRegion';
 import type { State } from './stateMachine';
 
 export interface MountOptions {
@@ -77,6 +78,13 @@ export function mount(rootEl: HTMLElement, opts: MountOptions): () => void {
       },
       onCapture: handleCapture,
       onError: (err) => showError(handles, errorMessageFor(err)),
+      getCropRect: () => {
+        if (!camera) return null;
+        const layout = readVideoLayout(camera.video);
+        const overlayRect = readOverlayRect(handles.overlay.element);
+        if (!layout || !overlayRect) return null;
+        return computeCropRect(layout, overlayRect);
+      },
     });
 
     handles.manualBtn.addEventListener('click', () => {

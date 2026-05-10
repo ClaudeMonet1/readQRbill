@@ -7,8 +7,11 @@ export interface CameraHandle {
 const PREFERRED: MediaStreamConstraints = {
   video: {
     facingMode: { ideal: 'environment' },
-    width: { ideal: 1920 },
-    height: { ideal: 1080 },
+    // Push for the highest resolution the camera can deliver. Browsers pick the
+    // closest supported value; on phones with 4K cameras this typically yields
+    // 3840×2160 or higher. Cropping to the page guide preserves detail.
+    width: { ideal: 4096 },
+    height: { ideal: 4096 },
   },
   audio: false,
 };
