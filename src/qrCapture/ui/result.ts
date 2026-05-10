@@ -1,4 +1,7 @@
+import { downscaleBlob } from '../../lib/downscaleBlob';
 import type { QRBillData } from '../types';
+
+const THUMB_MAX_DIM = 1000;
 
 const RESULT_STYLE_ID = 'qr-result-styles';
 
@@ -96,9 +99,17 @@ function photoBlock(label: string, blob: Blob, alt: string): HTMLDivElement {
 
   const img = document.createElement('img');
   img.alt = alt;
-  img.src = URL.createObjectURL(blob);
   img.addEventListener('load', () => URL.revokeObjectURL(img.src), { once: true });
   block.appendChild(img);
+
+  void downscaleBlob(blob, THUMB_MAX_DIM)
+    .then((thumb) => {
+      img.src = URL.createObjectURL(thumb);
+    })
+    .catch((err: unknown) => {
+      console.warn('[result] thumbnail downscale failed, using original', err);
+      img.src = URL.createObjectURL(blob);
+    });
 
   return block;
 }
