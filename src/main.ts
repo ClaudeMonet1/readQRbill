@@ -1,8 +1,13 @@
-import { VERSION } from './version';
+import { mount } from './pageCapture';
 
 const root = document.getElementById('app');
 if (!root) {
   throw new Error('Missing #app root element');
 }
 
-root.textContent = `readQRbill v${VERSION} — toolchain OK`;
+mount(root, {
+  onCapture: (blob) => {
+    // Step 2 (QR scan) will pick this up in a later plan.
+    console.log('[pageCapture] captured', blob.size, 'bytes,', blob.type);
+  },
+});
