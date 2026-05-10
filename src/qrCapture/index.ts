@@ -79,17 +79,22 @@ export function mount(rootEl: HTMLElement, opts: MountQROptions): () => void {
             stopLoop = null;
             camera?.stop();
             camera = null;
-            showResult(rootEl, data, {
-              onRetry: () => {
-                cleanup();
-                cleaned = false;
-                void start();
+            showResult(
+              rootEl,
+              data,
+              { pageImage: opts.pageImage, qrImage },
+              {
+                onRetry: () => {
+                  cleanup();
+                  cleaned = false;
+                  void start();
+                },
+                onAccept: () => {
+                  cleanup();
+                  opts.onComplete({ pageImage: opts.pageImage, qrImage, validation: data });
+                },
               },
-              onAccept: () => {
-                cleanup();
-                opts.onComplete({ pageImage: opts.pageImage, qrImage, validation: data });
-              },
-            });
+            );
           })
           .catch((err: unknown) => {
             showScanError(rootEl, errorMessageFor(err), () => {

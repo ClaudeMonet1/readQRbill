@@ -17,6 +17,10 @@ const STYLES = `
 .qr-result__buttons { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; justify-content: center; }
 .qr-result__btn { padding: 14px 32px; min-width: 160px; min-height: 48px; font-size: 16px; border: 1px solid #888; border-radius: 24px; background: rgba(255,255,255,0.05); color: #fff; cursor: pointer; }
 .qr-result__btn--primary { background: #2c8; border-color: #2c8; color: #000; font-weight: 600; }
+.qr-result__photos { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.qr-result__photo { flex: 1 1 0; min-width: 140px; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.qr-result__photo img { max-width: 100%; max-height: 220px; object-fit: contain; border-radius: 6px; background: #111; }
+.qr-result__photo__label { font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: 0.5px; }
 `;
 
 function ensureStyles(): void {
@@ -76,7 +80,35 @@ export interface ResultActions {
   onAccept: () => void;
 }
 
-export function showResult(rootEl: HTMLElement, data: QRBillData, actions: ResultActions): void {
+export interface ResultImages {
+  pageImage: Blob;
+  qrImage: Blob;
+}
+
+function photoBlock(label: string, blob: Blob, alt: string): HTMLDivElement {
+  const block = document.createElement('div');
+  block.className = 'qr-result__photo';
+
+  const lab = document.createElement('div');
+  lab.className = 'qr-result__photo__label';
+  lab.textContent = label;
+  block.appendChild(lab);
+
+  const img = document.createElement('img');
+  img.alt = alt;
+  img.src = URL.createObjectURL(blob);
+  img.addEventListener('load', () => URL.revokeObjectURL(img.src), { once: true });
+  block.appendChild(img);
+
+  return block;
+}
+
+export function showResult(
+  rootEl: HTMLElement,
+  data: QRBillData,
+  images: ResultImages,
+  actions: ResultActions,
+): void {
   ensureStyles();
   rootEl.innerHTML = '';
 
@@ -90,6 +122,12 @@ export function showResult(rootEl: HTMLElement, data: QRBillData, actions: Resul
   header.className = `qr-result__header qr-result__header--${data.valid ? 'ok' : 'err'}`;
   header.textContent = data.valid ? '✅ QR-bill valide' : '❌ QR-bill invalide';
   inner.appendChild(header);
+
+  const photos = document.createElement('div');
+  photos.className = 'qr-result__photos';
+  photos.appendChild(photoBlock('Facture', images.pageImage, 'Photo de la page'));
+  photos.appendChild(photoBlock('QR-bill', images.qrImage, 'Photo du QR-bill'));
+  inner.appendChild(photos);
 
   const hr = document.createElement('hr');
   hr.className = 'qr-result__rule';
