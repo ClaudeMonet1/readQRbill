@@ -1,3 +1,5 @@
+import { mountStepHeader } from '../../lib/stepHeader';
+
 const STYLE_ID = 'qr-styles';
 
 const STYLES = `
@@ -63,6 +65,8 @@ export function renderScan(rootEl: HTMLElement): ScanHandles {
   cancelBtn.type = 'button';
   cancelBtn.textContent = '↩︎ Reprendre la photo';
   rootEl.appendChild(cancelBtn);
+
+  mountStepHeader(rootEl, { step: 2 });
 
   return { root: rootEl, videoSlot, overlay, statusEl, cancelBtn };
 }

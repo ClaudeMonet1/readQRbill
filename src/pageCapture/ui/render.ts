@@ -1,3 +1,4 @@
+import { mountStepHeader } from '../../lib/stepHeader';
 import { createOverlay, type OverlayHandle } from './overlay';
 
 const STYLE_ID = 'pc-styles';
@@ -64,6 +65,8 @@ export function render(rootEl: HTMLElement): RenderHandles {
   manualBtn.type = 'button';
   manualBtn.textContent = 'Capturer';
   rootEl.appendChild(manualBtn);
+
+  mountStepHeader(rootEl, { step: 1 });
 
   return { root: rootEl, videoSlot, overlay, statusEl, manualBtn };
 }
