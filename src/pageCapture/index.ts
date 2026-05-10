@@ -48,12 +48,15 @@ export function mount(rootEl: HTMLElement, opts: MountOptions): () => void {
   const handleCapture = (blob: Blob) => {
     flash(handles.root);
     vibrate();
-    opts.onCapture(blob);
-    showPreview(handles, blob, () => {
-      // Restart from scratch
-      cleanup();
-      cleaned = false;
-      void start();
+    showPreview(handles, blob, {
+      onRetry: () => {
+        cleanup();
+        cleaned = false;
+        void start();
+      },
+      onAccept: () => {
+        opts.onCapture(blob);
+      },
     });
   };
 

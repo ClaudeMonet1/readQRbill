@@ -19,8 +19,10 @@ html, body { margin: 0; padding: 0; height: 100%; background: #000; color: #eee;
 .pc-button:disabled { opacity: 0.4; cursor: default; }
 .pc-flash { position: absolute; inset: 0; background: #fff; opacity: 1; transition: opacity 200ms ease-out; pointer-events: none; }
 .pc-error { position: absolute; left: 24px; right: 24px; top: 50%; transform: translateY(-50%); text-align: center; font-size: 18px; }
-.pc-preview { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; gap: 16px; }
-.pc-preview img { max-width: 90vw; max-height: 70vh; object-fit: contain; }
+.pc-preview { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: #000; gap: 16px; padding: 16px; box-sizing: border-box; }
+.pc-preview img { max-width: 90vw; max-height: 60vh; object-fit: contain; }
+.pc-preview-actions { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.pc-button--primary { background: #2c8; border-color: #2c8; color: #000; font-weight: 600; }
 `;
 
 function ensureStyles(): void {
@@ -80,10 +82,15 @@ export function showError(handles: RenderHandles, message: string): void {
   handles.root.appendChild(err);
 }
 
+export interface PreviewActions {
+  onRetry: () => void;
+  onAccept: () => void;
+}
+
 export function showPreview(
   handles: RenderHandles,
   blob: Blob,
-  onRetry: () => void,
+  actions: PreviewActions,
 ): void {
   handles.root.innerHTML = '';
   ensureStyles();
@@ -101,14 +108,27 @@ export function showPreview(
   status.textContent = '✓ Photo prise';
   preview.appendChild(status);
 
-  const btn = document.createElement('button');
-  btn.className = 'pc-button';
-  btn.style.position = 'static';
-  btn.style.transform = 'none';
-  btn.type = 'button';
-  btn.textContent = 'Recommencer';
-  btn.addEventListener('click', onRetry);
-  preview.appendChild(btn);
+  const buttons = document.createElement('div');
+  buttons.className = 'pc-preview-actions';
 
+  const retryBtn = document.createElement('button');
+  retryBtn.className = 'pc-button';
+  retryBtn.style.position = 'static';
+  retryBtn.style.transform = 'none';
+  retryBtn.type = 'button';
+  retryBtn.textContent = 'Recommencer';
+  retryBtn.addEventListener('click', actions.onRetry);
+  buttons.appendChild(retryBtn);
+
+  const acceptBtn = document.createElement('button');
+  acceptBtn.className = 'pc-button pc-button--primary';
+  acceptBtn.style.position = 'static';
+  acceptBtn.style.transform = 'none';
+  acceptBtn.type = 'button';
+  acceptBtn.textContent = 'Continuer →';
+  acceptBtn.addEventListener('click', actions.onAccept);
+  buttons.appendChild(acceptBtn);
+
+  preview.appendChild(buttons);
   handles.root.appendChild(preview);
 }
