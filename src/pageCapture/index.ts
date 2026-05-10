@@ -1,4 +1,4 @@
-import { startCamera, type CameraHandle } from './camera';
+import { startCamera, type CameraHandle } from '../lib/camera';
 import { runCaptureLoop, type CaptureLoopHandle } from './captureLoop';
 import { render, attachVideo, showError, showPreview, type RenderHandles } from './ui/render';
 import { flash, vibrate } from './ui/feedback';
